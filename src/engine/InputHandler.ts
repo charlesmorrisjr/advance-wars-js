@@ -4,16 +4,17 @@ import { MapRenderer } from './MapRenderer';
 import { UnitRenderer } from './UnitRenderer';
 import { Position, UnitType } from '../game/types';
 import { UNIT_DATA } from '../data/unitData';
+import GameScene from './GameScene';
 
 export class InputHandler {
-  private scene: Phaser.Scene;
+  private scene: GameScene;
   private gameState: GameStateManager;
   private mapRenderer: MapRenderer;
   private unitRenderer: UnitRenderer;
   private selectedUnitId: string | null = null;
   private movementHighlights: Phaser.GameObjects.Graphics[] = [];
 
-  constructor(scene: Phaser.Scene, gameState: GameStateManager, mapRenderer: MapRenderer, unitRenderer: UnitRenderer) {
+  constructor(scene: GameScene, gameState: GameStateManager, mapRenderer: MapRenderer, unitRenderer: UnitRenderer) {
     this.scene = scene;
     this.gameState = gameState;
     this.mapRenderer = mapRenderer;
@@ -181,8 +182,10 @@ export class InputHandler {
   }
 
   private updateTurnDisplay(): void {
-    // This would update the UI to show current player
-    // For now, we'll just log it
+    // Update the actual UI display
+    this.scene.updateTurnDisplay();
+    
+    // Keep console log for debugging
     const state = this.gameState.getState();
     console.log(`Current Player: ${state.currentPlayer}, Turn: ${state.turnNumber}`);
   }

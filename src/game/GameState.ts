@@ -133,8 +133,18 @@ export class GameStateManager {
 
   endTurn(): void {
     this.resetUnitsForTurn();
+    
+    // Check if this is Player2 ending their turn (completing a round)
+    const isRoundComplete = this.state.currentPlayer === Player.Player2;
+    
+    // Switch to next player
     this.state.currentPlayer = this.state.currentPlayer === Player.Player1 ? Player.Player2 : Player.Player1;
-    this.state.turnNumber++;
+    
+    // Only increment turn number when a full round is complete (Player2 → Player1)
+    if (isRoundComplete) {
+      this.state.turnNumber++;
+    }
+    
     this.state.selectedUnit = undefined;
     this.state.phase = 'move';
   }

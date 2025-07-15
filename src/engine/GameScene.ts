@@ -11,6 +11,7 @@ export default class GameScene extends Phaser.Scene {
   private mapRenderer!: MapRenderer;
   private unitRenderer!: UnitRenderer;
   private inputHandler!: InputHandler;
+  private turnDisplayText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'GameScene' });
@@ -32,8 +33,7 @@ export default class GameScene extends Phaser.Scene {
       color: '#ffffff'
     }).setOrigin(0.5);
 
-    const state = this.gameState.getState();
-    this.add.text(400, 50, `Current Player: ${state.currentPlayer} | Turn: ${state.turnNumber}`, {
+    this.turnDisplayText = this.add.text(400, 50, this.getTurnDisplayString(), {
       fontSize: '14px',
       color: '#ffffff'
     }).setOrigin(0.5);
@@ -56,6 +56,15 @@ export default class GameScene extends Phaser.Scene {
     console.log('Map units texture loaded:', this.textures.exists('map_units'));
     console.log('Game state initialized:', this.gameState.getState());
     console.log('Units on board:', Array.from(this.gameState.getState().board.units.values()));
+  }
+
+  private getTurnDisplayString(): string {
+    const state = this.gameState.getState();
+    return `Current Player: ${state.currentPlayer} | Turn: ${state.turnNumber}`;
+  }
+
+  public updateTurnDisplay(): void {
+    this.turnDisplayText.setText(this.getTurnDisplayString());
   }
 
   update() {
