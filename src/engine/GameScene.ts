@@ -7,10 +7,10 @@ import { InputHandler } from './InputHandler';
 
 export default class GameScene extends Phaser.Scene {
   private spriteManager!: SpriteManager;
-  private gameState!: GameStateManager;
+  public gameState!: GameStateManager;
   private mapRenderer!: MapRenderer;
   private unitRenderer!: UnitRenderer;
-  private inputHandler!: InputHandler;
+  public inputHandler!: InputHandler;
   private turnDisplayText!: Phaser.GameObjects.Text;
 
   constructor() {

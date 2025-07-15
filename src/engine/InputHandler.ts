@@ -46,6 +46,8 @@ export class InputHandler {
     // Check if click is within board bounds
     if (gridPos.x < 0 || gridPos.x >= state.board.width || 
         gridPos.y < 0 || gridPos.y >= state.board.height) {
+      // Clicked outside board - deselect any selected unit
+      this.clearSelection();
       return;
     }
 
@@ -60,8 +62,23 @@ export class InputHandler {
         // Clicked on another friendly unit - select it
         this.selectUnit(clickedUnit.id);
       } else {
-        // Clicked on empty space or enemy unit - try to move
-        this.attemptMove(gridPos);
+        // Clicked on empty space, enemy unit, or invalid move location
+        const moveAttempted = this.attemptMove(gridPos);
+        
+        // If move failed because target is invalid, deselect the unit
+        if (!moveAttempted) {
+          // Check if this is a valid move target for deselection
+          const selectedUnit = this.gameState.getState().board.units.get(this.selectedUnitId);
+          if (selectedUnit && !selectedUnit.hasMoved) {
+            const movementRange = this.getUnitMovementRange(selectedUnit.type);
+            const distance = Math.abs(gridPos.x - selectedUnit.position.x) + Math.abs(gridPos.y - selectedUnit.position.y);
+            
+            // If clicked outside movement range or on invalid target, deselect
+            if (distance > movementRange || clickedUnit || this.gameState.getUnitAt(gridPos)) {
+              this.clearSelection();
+            }
+          }
+        }
       }
     } else {
       // No unit selected
@@ -91,7 +108,7 @@ export class InputHandler {
     console.log(`Selected unit: ${unit.type} at (${unit.position.x}, ${unit.position.y})`);
   }
 
-  private clearSelection(): void {
+  public clearSelection(): void {
     if (this.selectedUnitId) {
       this.unitRenderer.clearUnitHighlight(this.selectedUnitId);
       this.selectedUnitId = null;
@@ -99,13 +116,13 @@ export class InputHandler {
     this.clearMovementHighlights();
   }
 
-  private attemptMove(targetPos: Position): void {
-    if (!this.selectedUnitId) return;
+  private attemptMove(targetPos: Position): boolean {
+    if (!this.selectedUnitId) return false;
 
     const unit = this.gameState.getState().board.units.get(this.selectedUnitId);
     if (!unit || unit.hasMoved) {
       console.log('Unit cannot move (already moved or not found)');
-      return;
+      return false;
     }
 
     // Check if target position is within movement range
@@ -114,7 +131,7 @@ export class InputHandler {
     
     if (distance > movementRange) {
       console.log(`Target too far (distance: ${distance}, range: ${movementRange})`);
-      return;
+      return false;
     }
 
     // Attempt to move the unit
@@ -128,8 +145,10 @@ export class InputHandler {
           this.unitRenderer.updateUnitPosition(this.selectedUnitId!);
           this.clearSelection();
         });
+      return true;
     } else {
       console.log('Move failed (invalid target or occupied)');
+      return false;
     }
   }
 
@@ -170,7 +189,7 @@ export class InputHandler {
     return UNIT_DATA[unitType].movement;
   }
 
-  private endTurn(): void {
+  public endTurn(): void {
     this.clearSelection();
     this.gameState.endTurn();
     
