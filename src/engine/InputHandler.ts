@@ -174,6 +174,9 @@ export class InputHandler {
     this.clearSelection();
     this.gameState.endTurn();
     
+    // Refresh unit visuals to reflect reset movement state
+    this.unitRenderer.renderUnits();
+    
     const state = this.gameState.getState();
     console.log(`Turn ended. Now ${state.currentPlayer}'s turn (Turn ${state.turnNumber})`);
     
